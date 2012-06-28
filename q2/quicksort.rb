@@ -36,11 +36,11 @@ class Quicksort
     return keys if keys.nil? || keys.size <= 1
     three={}
     three[0]=keys[0]
-    middle = (keys.size/2)-1
+    middle = keys.size%2==0 ? (keys.size/2)-1 : keys.size/2 
     three[middle]=keys[middle]
     three[keys.size-1]=keys[keys.size-1]
     median_value = three.values.sort[1]
-    median_index = three.key(median_value).to_i
+    median_index = three.key(median_value)
     if median_index > 0
       keys[0], keys[median_index] = keys[median_index], keys[0]
     end
@@ -63,8 +63,11 @@ class Quicksort
   #end
  
 end
+a1=[0,9,8,7,6,5,4,3,2,1]
+a2=[0,1,2,3,4,5,6,7,8,9]
+a3=[1,11,5,15,2,12,9,99,77,0]
 f1=[9,6,3,7,4,2]
 f2=[9,6,3,7,2,4]
-#f=CSV.read('QuickSort.txt', :converters => :numeric).flatten
-puts Quicksort.median(f2)
+f=CSV.read('QuickSort.txt', :converters => :numeric).flatten
+Quicksort.median(f)
 puts "Comparisons: #{@@comparisons}"
