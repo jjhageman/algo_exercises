@@ -1,8 +1,8 @@
 #require 'set'
-#require 'csv'
-#require 'debugger'
-require 'rubygems'
-require 'fastercsv'
+require 'csv'
+require 'debugger'
+#require 'rubygems'
+#require 'fastercsv'
 
 @explored=[]
 @adj_nodes={}
@@ -33,6 +33,7 @@ def kosaraju(g)
   @leaders={}
   @explored=[]
   times = @finish_times.clone
+  @finish_times={}
 
   i=@n
   while i > 0
@@ -48,24 +49,52 @@ def kosaraju(g)
 end
 
 def dfs(g,s)
-  #puts "g: #{g}, s: #{s}"
 
-  return if @explored.include?(s)
+  ## Iterative Approach ##
+  stack = [s]
+  until stack == []
+    curr = stack[-1]
 
-  @explored << s
-  #puts "s: #{s}, source: #{@source}"
-  @leaders[s]=@source
+    if @finish_times.has_key?(curr)
+      stack.pop
+    else
 
-  if g[s]
-    g[s].each do |v|
-      dfs(g,v) unless @explored.include?(v)
-    end 
+      unless @explored.include?(curr)
+        @explored << curr
+        @leaders[curr]=@source
+      end
+
+      if g[curr].nil? || (g[curr]-@explored).empty?
+        unless  @finish_times.has_key?(curr)
+          @time += 1
+          @finish_times[curr]=@time
+        end
+          stack.pop
+      else
+        unexplored = g[curr]-@explored
+        stack << unexplored.last
+      end
+
+    end
   end
 
-  @time += 1
-  @finish_times[s]=@time
+  ## Recursive Approach ##
+  #return if @explored.include?(s)
+
+  #@explored << s
+  #puts "s: #{s}, source: #{@source}"
+  #@leaders[s]=@source
+
+  #if g[s]
+    #g[s].each do |v|
+      #dfs(g,v) unless @explored.include?(v)
+    #end 
+  #end
+
+  #@time += 1
+  #@finish_times[s]=@time
 end
 
-g=FasterCSV.read("SCC.txt", :col_sep => " ", :converters => :numeric)
+g=CSV.read("SCC.txt", :col_sep => " ", :converters => :numeric)
 
 kosaraju g
