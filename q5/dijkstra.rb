@@ -49,7 +49,10 @@ class Dijkstra
     pbar.finish
     
     puts "shortest distance #{@a}"
-    puts "shortest path #{@b}"
+    puts "Specific paths:"
+    puts "7,37,59,82,99,115,133,165,188,197"
+    puts "#{@a[7]},#{@a[37]},#{@a[59]},#{@a[82]},#{@a[99]},#{@a[115]},#{@a[133]},#{@a[165]},#{@a[188]},#{@a[197]},"
+    #puts "shortest path #{@b}"
   end
 end
 
