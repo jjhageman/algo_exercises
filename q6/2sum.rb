@@ -20,7 +20,14 @@ class TwoSum
     puts "Imported integers: #{@i.size}"
 
     pbar2 = ProgressBar.new("Counting sums", @i.size)
-    (2500..4000).each {|t| @i.each {|i| @sums<<t if @i.include?(t-i); pbar2.inc}}
+    (2500..4000).each do |t|
+      @i.each do |i|
+        if @i.include?(t-i)
+          @sums<<t unless i == (t-i)
+        end
+      end
+      pbar2.inc
+    end
     pbar2.finish
     #debugger
     puts "Sums: #{@sums.size}"
