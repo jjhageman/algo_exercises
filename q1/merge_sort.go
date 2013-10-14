@@ -7,16 +7,34 @@ import (
   "strconv"
 )
 
-func mergeSort(list *[]int) {
-    x := *list
-  if len(x) > 1 {
-    mid := len(x)/2
-    fmt.Println(mid)
-    left := x[0:mid]
-    right := x[mid:]
-    mergeSort(&left)
-    mergeSort(&right)
+func merge(left, right []int) (merged []int) {
+  i, j := 0,0
+  for k := 0; k < len(left)+len(right); k++ {
+    if i >= len(left) {
+      merged = append(merged, right[j])
+      j++
+    } else if j >= len(right) {
+      merged = append(merged, left[i])
+      i++
+    } else if left[i] <= right[j] {
+      merged = append(merged, left[i])
+      i++
+    } else {
+      merged = append(merged, right[j])
+      j++
+    }
   }
+  return merged
+}
+
+func mergeSort(list []int) ([]int) {
+  if len(list) > 1 {
+    mid := len(list)/2
+    left := list[0:mid]
+    right := list[mid:]
+    return merge(mergeSort(left), mergeSort(right))
+  } 
+  return list
 }
 
 func readInts(fileName string) (nums []int, err error) {
@@ -39,7 +57,8 @@ func main() {
   file := "TestArray.txt"
   fmt.Printf("Importing data from '%s'\n", file)
   ints, err := readInts(file)
-  fmt.Println(ints, err)
-  mergeSort(&ints)
-  fmt.Println(ints, err)
+  if err != nil { panic(err) }
+  fmt.Printf("Sorting %v\n", ints)
+  sorted := mergeSort(ints)
+  fmt.Println(sorted)
 }
