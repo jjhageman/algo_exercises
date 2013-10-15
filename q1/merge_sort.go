@@ -5,7 +5,32 @@ import (
   "os"
   "bufio"
   "strconv"
+	"runtime"
+	"time"
 )
+
+var cnt int
+
+func mergeAndCountSplitInv(left, right []int) (merged []int) {
+  i, j := 0,0
+  for k := 0; k < len(left)+len(right); k++ {
+    if i >= len(left) {
+      merged = append(merged, right[j])
+      j++
+    } else if j >= len(right) {
+      merged = append(merged, left[i])
+      i++
+    } else if left[i] <= right[j] {
+      merged = append(merged, left[i])
+      i++
+    } else {
+      cnt += len(left[i:])
+      merged = append(merged, right[j])
+      j++
+    }
+  }
+  return
+}
 
 func merge(left, right []int) (merged []int) {
   i, j := 0,0
@@ -32,7 +57,16 @@ func mergeSort(list []int) ([]int) {
     mid := len(list)/2
     left := list[0:mid]
     right := list[mid:]
-    return merge(mergeSort(left), mergeSort(right))
+
+    c1 := make(chan []int)
+    c2 := make(chan []int)
+
+    go mergeSort(left)
+    go mergeSort(right)
+
+    lsort := <-c1
+    rsort := <-c2
+    return mergeAndCountSplitInv(lsort, rsort)
   } 
   return list
 }
@@ -54,11 +88,14 @@ func readInts(fileName string) (nums []int, err error) {
 }
 
 func main() {
-  file := "TestArray.txt"
+  file := "IntegerArray.txt"
   fmt.Printf("Importing data from '%s'\n", file)
   ints, err := readInts(file)
   if err != nil { panic(err) }
-  fmt.Printf("Sorting %v\n", ints)
-  sorted := mergeSort(ints)
-  fmt.Println(sorted)
+	runtime.GC()
+	t0 := time.Now()
+  mergeSort(ints)
+  t1 := time.Now()
+	fmt.Printf("total %v\n", t1.Sub(t0))
+  fmt.Println(cnt)
 }
