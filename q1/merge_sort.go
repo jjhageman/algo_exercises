@@ -57,18 +57,28 @@ func mergeSort(list []int) ([]int) {
     mid := len(list)/2
     left := list[0:mid]
     right := list[mid:]
+    return merge(mergeSort(left), mergeSort(right))
+  } 
+  return list
+}
+
+func concurrentMergeSort(list []int, result chan []int) {
+  if len(list) > 1 {
+    mid := len(list)/2
+    left := list[0:mid]
+    right := list[mid:]
 
     c1 := make(chan []int)
     c2 := make(chan []int)
 
-    go mergeSort(left)
-    go mergeSort(right)
+    go concurrentMergeSort(left, c1)
+    go concurrentMergeSort(right, c2)
 
     lsort := <-c1
     rsort := <-c2
-    return mergeAndCountSplitInv(lsort, rsort)
+    result <- merge(lsort, rsort)
   } 
-  return list
+  result <- list
 }
 
 func readInts(fileName string) (nums []int, err error) {
@@ -92,9 +102,20 @@ func main() {
   fmt.Printf("Importing data from '%s'\n", file)
   ints, err := readInts(file)
   if err != nil { panic(err) }
+
+  fmt.Println("Starting sequential mergesort")
+	runtime.GC()
+	t2 := time.Now()
+  mergeSort(ints)
+	t3 := time.Now()
+	fmt.Printf("total %v\n", t3.Sub(t2))
+
+  fmt.Println("Starting concurrent mergesort")
+  r := make(chan []int)
 	runtime.GC()
 	t0 := time.Now()
-  mergeSort(ints)
+  go concurrentMergeSort(ints, r)
+  <-r
   t1 := time.Now()
 	fmt.Printf("total %v\n", t1.Sub(t0))
   fmt.Println(cnt)
